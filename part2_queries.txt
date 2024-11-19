@@ -1,0 +1,51 @@
+How many rows are there for each table?
+	SELECT Count(*) FROM Customers;
+	- 1080
+
+	SELECT Count(*) FROM Orders;
+	- 3748135
+
+	SELECT Count(*) FROM OrderLines;  
+	- 7498338
+
+Average, minimum, and maximum lines per order
+	SELECT 
+		AVG(AmountOfOrderLines) AS Average,
+		MIN(AmountOfOrderLines) AS Minimum,
+		MAX(AmountOfOrderLines) AS Maximum
+	FROM (
+		SELECT Orders.OrderId, COUNT(*) AS AmountOfOrderLines
+		FROM Orders
+		INNER JOIN OrderLines ON Orders.OrderId = OrderLines.OrderId
+		GROUP BY Orders.OrderId
+	) AS AllOrderLines;
+	- Average = 2, Minimum = 1, Maximum = 3
+
+What customer placed the most orders?
+	SELECT 
+		Customers.Name, 
+		COUNT(Orders.CustomerId) AS OrdersPlaced
+	FROM Orders
+	INNER JOIN Customers ON Customers.CustomerId = Orders.CustomerId
+	GROUP BY Customers.Name
+	ORDER BY OrdersPlaced DESC;
+	- Jerry Tanner = 67507 Orders
+
+What customer placed the most OrderLines and how many OrderLines were ordered
+	SELECT 
+		Customers.Name, 
+		Customers.CustomerId, 
+		COUNT(OrderLines.OrderLineId) AS OrderLinesPlaced
+	FROM Orders
+	INNER JOIN Customers ON Customers.CustomerId = Orders.CustomerId
+	INNER JOIN OrderLines ON Orders.OrderId = OrderLines.OrderId
+	GROUP BY Customers.Name, Customers.CustomerId
+	ORDER BY OrderLinesPlaced DESC;
+	- Jerry Snow = 11993 OrderLines
+
+What product is the most popular and how many times has it been sold
+	SELECT ProductId as Product, COUNT(*) as AmountSold
+	FROM OrderLines
+	GROUP BY ProductId
+	ORDER BY AmountSold DESC;
+	- ProductId = 1738, AmountSold = 955
